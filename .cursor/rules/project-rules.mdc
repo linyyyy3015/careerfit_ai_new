@@ -1,0 +1,36 @@
+---
+description: CareerFit AI 프로젝트 전체 규칙
+globs:
+alwaysApply: true
+---
+
+# CareerFit AI — Cursor Rules
+
+## 프로젝트 기본 정보
+
+- 프로젝트명: CareerFit AI
+- 목적: 취업·공모전 데이터 기반 맞춤형 AI 포트폴리오 코치
+- 스택: Python, FastAPI, Gemini 2.5 Flash-Lite, Pandas, SQLite, ChromaDB, React, Vite, Docker
+
+## 폴더 구조 규칙
+
+- 백엔드 진입점: backend/main.py
+- 라우터: backend/routers/
+- 서비스 로직: backend/services/
+- 데이터: backend/data/
+- 프론트엔드: frontend/src/
+- 하네스 문서: docs/
+
+## 코딩 원칙
+
+1. API Key는 절대 코드에 직접 입력하지 않는다. 반드시 os.getenv()를 사용한다.
+2. 코드를 생성하기 전에 왜 이 코드가 필요한지 한 문장으로 먼저 설명한다.
+3. 구현하지 않은 기능을 미리 추가하지 않는다.
+4. 향후 개선 사항은 코드 안이 아니라 README "향후 개선" 섹션에 기록한다.
+5. FastAPI 포트: 8000 고정 / React 개발 서버 포트: 5173 고정
+
+## 금지 사항
+
+- .env 파일을 GitHub에 올리는 행위
+- 전체 기능을 한 번에 생성하는 바이브코딩 요청
+- 오류를 이해하지 않고 수정 코드만 요청하는 행위
