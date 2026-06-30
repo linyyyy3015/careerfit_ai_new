@@ -19,7 +19,15 @@
 ## 진행 현황
 
 * [x] 1일차: 프로젝트 기획 및 개발 환경 세팅
-* [ ] 2일차: FastAPI 서버 구축 및 Gemini API 연결
+* [x] 2일차: FastAPI 서버 구축 및 Gemini API 연결
 * [ ] 3일차: 데이터 파이프라인 구축
 * [ ] 4일차: RAG 기반 서비스 + React UI
 * [ ] 5일차: Docker + 포트폴리오 완성
+
+### 2일차 구현 내용
+
+- FastAPI 서버와 CORS 설정을 구성했습니다.
+- `/health`, `/jobs`, `/analyze` 엔드포인트를 구현했습니다.
+- `/jobs`에서 실습용 채용공고 목업 데이터를 반환하도록 구성했습니다.
+- `/analyze`에서 사용자 입력을 받는 요청·응답 구조와 목업 분석 기능을 구현했습니다.
+- Gemini·Mistral·Hugging Face API 키와 mock mode 환경변수 설정을 추가했습니다.
