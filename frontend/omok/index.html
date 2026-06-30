@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>오목게임</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <main class="game-container">
+    <header class="game-header">
+      <h1>오목게임</h1>
+      <p>가로, 세로, 대각선으로 돌 5개를 연결하세요.</p>
+    </header>
+
+    <section class="status-panel" aria-live="polite">
+      <div id="turnStone" class="turn-stone black"></div>
+      <span id="statusText">흑돌 차례입니다.</span>
+    </section>
+
+    <section class="board-wrapper">
+      <div
+        id="board"
+        class="board"
+        role="grid"
+        aria-label="15 곱하기 15 오목판"
+      ></div>
+    </section>
+
+    <section class="control-panel">
+      <button id="resetButton" type="button">
+        다시 시작
+      </button>
+    </section>
+  </main>
+
+  <div id="resultModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="resultTitle">흑돌 승리!</h2>
+      <p id="resultMessage">흑돌이 돌 5개를 연결했습니다.</p>
+
+      <button id="modalResetButton" type="button">
+        새 게임 시작
+      </button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
