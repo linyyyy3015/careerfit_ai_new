@@ -1,7 +1,7 @@
 ---
 description: CareerFit AI 프로젝트 전체 규칙
 globs:
-alwaysApply: true
+alwaysApply: false
 ---
 
 # CareerFit AI — Cursor Rules
