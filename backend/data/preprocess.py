@@ -330,6 +330,62 @@ def convert_to_rag_documents(df: pd.DataFrame) -> list:
             f"{row.get('description', '정보 없음')}"
         )
 
+        # 1) deadline_month 생성
+        deadline_value = row.get("deadline", "")
+        deadline_text = str(deadline_value).strip()
+
+        if deadline_text.lower() in ["", "nan", "none", "nat"]:
+            deadline_month = 0
+        else:
+            # 예: 26.09.10 형식 처리
+            if (
+                "." in deadline_text
+                and len(deadline_text.split(".")) == 3
+                and len(deadline_text.split(".")[0]) == 2
+            ):
+                deadline_dt = pd.to_datetime(
+                    deadline_text,
+                    format="%y.%m.%d",
+                    errors="coerce",
+                )
+            else:
+                deadline_dt = pd.to_datetime(
+                    deadline_text,
+                    errors="coerce",
+                )
+
+            if pd.isna(deadline_dt):
+                deadline_month = 0
+            else:
+                deadline_month = int(deadline_dt.month)
+
+        # 2) is_startup 생성
+        # jobs.csv에 is_startup 컬럼이 있으면 그 값을 사용
+        # 없으면 회사명에 '스타트업'이 들어가는지로 판단
+        startup_value = row.get("is_startup", None)
+
+        if startup_value is None or pd.isna(startup_value):
+            company_name = str(row.get("company", ""))
+            is_startup = "스타트업" in company_name
+        else:
+            is_startup = (
+                str(startup_value).strip().lower()
+                in ["true", "1", "yes", "y", "스타트업"]
+            )
+
+        # 3) first_saved_date 생성
+        # jobs.csv에 first_saved_date 컬럼이 있으면 그 값을 사용
+        # 없으면 현재 날짜를 저장
+        first_saved_date_value = row.get("first_saved_date", "")
+
+        if (
+            pd.isna(first_saved_date_value)
+            or str(first_saved_date_value).strip() == ""
+        ):
+            first_saved_date = pd.Timestamp.today().strftime("%Y-%m-%d")
+        else:
+            first_saved_date = str(first_saved_date_value)
+
         metadata = {
             "id": str(row.get("id", "")),
             "company": str(row.get("company", "")),
@@ -337,6 +393,11 @@ def convert_to_rag_documents(df: pd.DataFrame) -> list:
             "job_type": str(row.get("job_type", "")),
             "deadline": str(row.get("deadline", "")),
             "source": "jobs.csv",
+
+            # 새로 추가한 metadata
+            "deadline_month": deadline_month,
+            "is_startup": is_startup,
+            "first_saved_date": first_saved_date,
         }
 
         documents.append(
@@ -356,7 +417,6 @@ def convert_to_rag_documents(df: pd.DataFrame) -> list:
         print(f"   메타데이터: {documents[0]['metadata']}")
 
     return documents
-
 
 # ─── 12. RAG JSON 저장 ────────────────────────────────
 

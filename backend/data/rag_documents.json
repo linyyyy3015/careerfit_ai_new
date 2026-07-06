@@ -1,0 +1,227 @@
+[
+  {
+    "text": "테크스타트업A에서 데이터 분석가를 채용합니다. 필수 스킬은 Python, SQL, 통계입니다. 우대 스킬: R, Tableau, 시각화. 업무 내용: 사용자 행동 데이터를 분석해 비즈니스 인사이트를 도출합니다. A/B 테스트 설계 및 결과 해석 업무를 담당합니다.",
+    "metadata": {
+      "id": "1",
+      "company": "테크스타트업A",
+      "title": "데이터 분석가",
+      "job_type": "데이터 분석",
+      "deadline": "2026-08-31",
+      "source": "jobs.csv",
+      "deadline_month": 8,
+      "is_startup": true,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_1"
+  },
+  {
+    "text": "금융서비스B에서 데이터 엔지니어를 채용합니다. 필수 스킬은 Python, Spark, SQL입니다. 우대 스킬: Kafka, Airflow, AWS. 업무 내용: 대용량 금융 거래 데이터 파이프라인을 설계하고 운영합니다. ETL 프로세스 개발 및 데이터 품질 관리를 담당합니다.",
+    "metadata": {
+      "id": "2",
+      "company": "금융서비스B",
+      "title": "데이터 엔지니어",
+      "job_type": "데이터 엔지니어링",
+      "deadline": "2026-09-15",
+      "source": "jobs.csv",
+      "deadline_month": 9,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_2"
+  },
+  {
+    "text": "AI솔루션C에서 머신러닝 엔지니어를 채용합니다. 필수 스킬은 Python, PyTorch, 딥러닝입니다. 우대 스킬: TensorFlow, CUDA, MLOps. 업무 내용: AI 모델 개발 및 서비스 배포를 담당합니다. 자연어 처리 및 컴퓨터 비전 프로젝트에 참여합니다.",
+    "metadata": {
+      "id": "3",
+      "company": "AI솔루션C",
+      "title": "머신러닝 엔지니어",
+      "job_type": "AI/ML",
+      "deadline": "2026-08-20",
+      "source": "jobs.csv",
+      "deadline_month": 8,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_3"
+  },
+  {
+    "text": "커머스E에서 데이터 분석가를 채용합니다. 필수 스킬은 SQL, Python, 엑셀입니다. 우대 스킬: Looker, 통계분석, A/B테스트. 업무 내용: 이커머스 판매 및 고객 행동 데이터를 분석해 마케팅 전략 수립을 지원합니다.",
+    "metadata": {
+      "id": "5",
+      "company": "커머스E",
+      "title": "데이터 분석가",
+      "job_type": "데이터 분석",
+      "deadline": "2026-08-31",
+      "source": "jobs.csv",
+      "deadline_month": 8,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_5"
+  },
+  {
+    "text": "헬스케어F에서 AI 연구원를 채용합니다. 필수 스킬은 Python, 머신러닝, 논문 작성입니다. 우대 스킬: NLP, 컴퓨터 비전, PyTorch. 업무 내용: 의료 데이터 기반 AI 모델을 연구·개발합니다. 논문 작성 및 학회 발표 경험자를 우대합니다.",
+    "metadata": {
+      "id": "6",
+      "company": "헬스케어F",
+      "title": "AI 연구원",
+      "job_type": "AI/ML",
+      "deadline": "2026-09-01",
+      "source": "jobs.csv",
+      "deadline_month": 9,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_6"
+  },
+  {
+    "text": "컨설팅G에서 경영전략 컨설턴트를 채용합니다. 필수 스킬은 Excel, PowerPoint, 데이터분석입니다. 우대 스킬: MBA, SQL, Tableau. 업무 내용: 기업 전략 수립 및 운영 효율화 프로젝트를 수행합니다. 데이터 기반 의사결정을 지원합니다.",
+    "metadata": {
+      "id": "7",
+      "company": "컨설팅G",
+      "title": "경영전략 컨설턴트",
+      "job_type": "경영전략",
+      "deadline": "2026-10-15",
+      "source": "jobs.csv",
+      "deadline_month": 10,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_7"
+  },
+  {
+    "text": "물류H에서 공급망 분석가를 채용합니다. 필수 스킬은 SQL, Python, 물류 도메인입니다. 우대 스킬: ERP, SCM, R. 업무 내용: 물류 네트워크 최적화 및 수요 예측 모델을 개발합니다. 물류·유통 도메인 이해 필수입니다.",
+    "metadata": {
+      "id": "8",
+      "company": "물류H",
+      "title": "공급망 분석가",
+      "job_type": "데이터 분석",
+      "deadline": "2026-08-15",
+      "source": "jobs.csv",
+      "deadline_month": 8,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_8"
+  },
+  {
+    "text": "바이오J에서 생물정보학 연구원를 채용합니다. 필수 스킬은 R, Python, 바이오인포매틱스입니다. 우대 스킬: BLAST, NGS, 리눅스. 업무 내용: 유전체 데이터 분석 파이프라인을 개발합니다. 생물정보학 관련 석사 이상 우대합니다.",
+    "metadata": {
+      "id": "10",
+      "company": "바이오J",
+      "title": "생물정보학 연구원",
+      "job_type": "연구개발",
+      "deadline": "2026-08-31",
+      "source": "jobs.csv",
+      "deadline_month": 8,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_10"
+  },
+  {
+    "text": "스타트업K에서 프론트엔드 개발자를 채용합니다. 필수 스킬은 JavaScript, React, HTML/CSS입니다. 우대 스킬: TypeScript, Next.js, Figma. 업무 내용: 사용자 경험 중심의 프론트엔드 서비스를 개발합니다. 디자인 협업 경험 우대.",
+    "metadata": {
+      "id": "11",
+      "company": "스타트업K",
+      "title": "프론트엔드 개발자",
+      "job_type": "프론트엔드 개발",
+      "deadline": "26.09.10",
+      "source": "jobs.csv",
+      "deadline_month": 9,
+      "is_startup": true,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_11"
+  },
+  {
+    "text": "금융L에서 리스크 분석가를 채용합니다. 필수 스킬은 Python, 통계, 금융공학입니다. 우대 스킬: VBA, Bloomberg, SQL. 업무 내용: 금융 리스크 모델을 개발하고 규제 보고서를 작성합니다. CFA 또는 FRM 자격증 우대.",
+    "metadata": {
+      "id": "12",
+      "company": "금융L",
+      "title": "리스크 분석가",
+      "job_type": "금융분석",
+      "deadline": "nan",
+      "source": "jobs.csv",
+      "deadline_month": 0,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_12"
+  },
+  {
+    "text": "공기업M에서 데이터 사이언티스트를 채용합니다. 필수 스킬은 Python, SQL, 머신러닝입니다. 우대 스킬: 딥러닝, 시각화, NLP. 업무 내용: 공공 서비스 개선을 위한 데이터 분석 및 AI 모델을 개발합니다. 공공 데이터 활용 경험 우대.",
+    "metadata": {
+      "id": "13",
+      "company": "공기업M",
+      "title": "데이터 사이언티스트",
+      "job_type": "데이터 분석",
+      "deadline": "2026-10-31",
+      "source": "jobs.csv",
+      "deadline_month": 10,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_13"
+  },
+  {
+    "text": "게임N에서 게임 데이터 분석가를 채용합니다. 필수 스킬은 SQL, Python, 게임 도메인입니다. 우대 스킬: R, 행동분석, A/B테스트. 업무 내용: 게임 유저 행동 데이터를 분석하고 게임 밸런싱 및 수익화 전략을 지원합니다.",
+    "metadata": {
+      "id": "14",
+      "company": "게임N",
+      "title": "게임 데이터 분석가",
+      "job_type": "데이터 분석",
+      "deadline": "2026-09-30",
+      "source": "jobs.csv",
+      "deadline_month": 9,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_14"
+  },
+  {
+    "text": "한빛세미콘에서 아날로그 IC 설계 엔지니어를 채용합니다. 필수 스킬은 전자회로, 회로이론, 반도체 소자, SPICE입니다. 우대 스킬: Cadence Virtuoso, MATLAB, Python, Layout 검증. 업무 내용: 전력관리 IC와 센서 인터페이스 회로를 설계하고 회로 시뮬레이션 및 성능 검증을 수행합니다.",
+    "metadata": {
+      "id": "16",
+      "company": "한빛세미콘",
+      "title": "아날로그 IC 설계 엔지니어",
+      "job_type": "아날로그 회로 설계",
+      "deadline": "2026-08-31",
+      "source": "jobs.csv",
+      "deadline_month": 8,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_16"
+  },
+  {
+    "text": "코어링크칩스에서 디지털 RTL 설계 엔지니어를 채용합니다. 필수 스킬은 디지털논리회로, Verilog, Linux, Git입니다. 우대 스킬: SystemVerilog, FPGA, 논리합성, Timing Analysis. 업무 내용: 시스템 반도체의 디지털 블록을 RTL로 설계하고 기능 검증 및 합성 결과 분석을 수행합니다.",
+    "metadata": {
+      "id": "17",
+      "company": "코어링크칩스",
+      "title": "디지털 RTL 설계 엔지니어",
+      "job_type": "디지털 회로 설계",
+      "deadline": "2026-09-15",
+      "source": "jobs.csv",
+      "deadline_month": 9,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_17"
+  },
+  {
+    "text": "미래소자연구소에서 반도체 소자·회로 시뮬레이션 엔지니어를 채용합니다. 필수 스킬은 반도체공학, MOSFET, SPICE, Python입니다. 우대 스킬: TCAD, MATLAB, 데이터 분석, C/C++. 업무 내용: 반도체 소자의 전기적 특성을 분석하고 소자·회로 시뮬레이션을 통해 설계 성능과 신뢰성을 검증합니다.",
+    "metadata": {
+      "id": "18",
+      "company": "미래소자연구소",
+      "title": "반도체 소자·회로 시뮬레이션 엔지니어",
+      "job_type": "반도체 설계",
+      "deadline": "2026-09-30",
+      "source": "jobs.csv",
+      "deadline_month": 9,
+      "is_startup": false,
+      "first_saved_date": "2026-07-06"
+    },
+    "doc_id": "job_18"
+  }
+]
