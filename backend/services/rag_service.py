@@ -60,16 +60,37 @@ def _load_documents(collection: chromadb.Collection) -> None:
 def search_documents(
     query: str,
     n_results: int = 3,
+    job_type: str = None,
 ) -> list:
     """
     사용자 질문과 의미적으로 유사한 문서를 ChromaDB에서 검색합니다.
+
+    Args:
+        query: 사용자 질문 텍스트
+        n_results: 반환할 문서 수
+        job_type: 특정 직무유형으로 검색 결과를 제한할 때 사용
+
+    Returns:
+        [{"text": str, "metadata": dict, "distance": float}, ...]
     """
     collection = get_or_create_collection()
 
-    results = collection.query(
-        query_texts=[query],
-        n_results=min(n_results, collection.count()),
-    )
+    where_filter = None
+
+    if job_type:
+        where_filter = {
+            "job_type": job_type
+        }
+
+    query_kwargs = {
+        "query_texts": [query],
+        "n_results": min(n_results, collection.count()),
+    }
+
+    if where_filter:
+        query_kwargs["where"] = where_filter
+
+    results = collection.query(**query_kwargs)
 
     return [
         {

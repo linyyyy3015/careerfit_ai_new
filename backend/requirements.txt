@@ -10,3 +10,6 @@ transformers==4.43.1
 tokenizers==0.19.1
 huggingface_hub==0.36.2
 torch==2.12.1
+
+requests
+huggingface_hub
