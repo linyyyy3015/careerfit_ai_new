@@ -1,10 +1,9 @@
 ---
-description: CareerFit AI project gate
-globs:
+name: CareerFit Project Rules
 alwaysApply: true
 ---
 
-# CareerFit AI Cursor Gate
+# CareerFit AI Continue Gate
 
 Follow the project harness:
 

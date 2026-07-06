@@ -1,17 +1,12 @@
----
-description: CareerFit AI project gate
-globs:
-alwaysApply: true
----
+# AGENTS.md
 
-# CareerFit AI Cursor Gate
+This project uses a compact harness for AI-assisted development.
 
-Follow the project harness:
-
+Start here:
 1. Read `harness/MAIN_HARNESS.md`.
 2. Use `harness/ROUTING.md` to select only the needed files.
-3. Use `harness/skills/design-skill.md` for UI design work.
-4. Use only the relevant files in `harness/checks/`.
+3. For UI design, use `harness/skills/design-skill.md`.
+4. For checks, use only the relevant files in `harness/checks/`.
 
 Hard reminders:
 - Do not modify `backend/` for React UI tasks.
@@ -20,5 +15,5 @@ Hard reminders:
 - Do not change the `/analyze` response schema.
 - Prefer one file, one task, one change.
 
-For educational explanations, follow:
+If the task is educational support, also follow:
 - `harness/agents/ai-tutor-rules.md`
