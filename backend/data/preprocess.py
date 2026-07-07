@@ -33,10 +33,73 @@ SKILL_NORMALIZATION = {
     "tableau": "Tableau",
     "powerbi": "Power BI",
     "power bi": "Power BI",
+    "verilog": "Verilog",
+    "systemverilog": "SystemVerilog",
+    "spice": "SPICE",
+    "matlab": "MATLAB",
+    "cadence": "Cadence",
+    "virtuoso": "Virtuoso",
+    "tcad": "TCAD",
+    "c/c++": "C/C++",
+    "c++": "C++",
+    "linux": "Linux",
+    "git": "Git",
 }
 
 
-# ─── 3. CSV 읽기 ──────────────────────────────────────
+# ─── 3. 공통 유틸 함수 ────────────────────────────────
+
+def safe_str(value) -> str:
+    """
+    NaN, None 값을 빈 문자열로 안전하게 변환합니다.
+    """
+    if pd.isna(value):
+        return ""
+
+    return str(value).strip()
+
+
+def get_deadline_month(deadline: str) -> int:
+    """
+    deadline 문자열에서 마감월을 추출합니다.
+
+    예:
+    2026-08-31 → 8
+    26.09.10 → 9
+    없거나 파싱 실패 → 0
+    """
+    deadline = safe_str(deadline)
+
+    if not deadline:
+        return 0
+
+    parsed = pd.to_datetime(
+        deadline,
+        errors="coerce",
+    )
+
+    if pd.isna(parsed):
+        return 0
+
+    return int(parsed.month)
+
+
+def is_startup_company(company: str) -> bool:
+    """
+    회사명 기준으로 스타트업 여부를 추정합니다.
+    """
+    company = safe_str(company)
+
+    startup_keywords = [
+        "스타트업",
+        "Startup",
+        "startup",
+    ]
+
+    return any(keyword in company for keyword in startup_keywords)
+
+
+# ─── 4. CSV 읽기 ──────────────────────────────────────
 
 def load_data(filepath: str) -> pd.DataFrame:
     """
@@ -60,7 +123,7 @@ def load_data(filepath: str) -> pd.DataFrame:
     return df
 
 
-# ─── 4. 결측치 확인 ────────────────────────────────────
+# ─── 5. 결측치 확인 ────────────────────────────────────
 
 def check_missing(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -90,7 +153,7 @@ def check_missing(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ─── 5. 결측치 처리 ────────────────────────────────────
+# ─── 6. 결측치 처리 ────────────────────────────────────
 
 def handle_missing(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -112,6 +175,7 @@ def handle_missing(df: pd.DataFrame) -> pd.DataFrame:
         "description",
         "company",
         "job_type",
+        "deadline",
     ]
 
     for col in text_cols:
@@ -126,7 +190,7 @@ def handle_missing(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ─── 6. 중복 확인 및 제거 ──────────────────────────────
+# ─── 7. 중복 확인 및 제거 ──────────────────────────────
 
 def remove_duplicates(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -165,7 +229,7 @@ def remove_duplicates(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ─── 7. 개별 스킬 문자열 표준화 ────────────────────────
+# ─── 8. 개별 스킬 문자열 표준화 ────────────────────────
 
 def normalize_skills(skills_str: str) -> str:
     """
@@ -183,6 +247,7 @@ def normalize_skills(skills_str: str) -> str:
     skills = [
         skill.strip()
         for skill in skills_str.split(",")
+        if skill.strip()
     ]
 
     normalized = []
@@ -196,7 +261,7 @@ def normalize_skills(skills_str: str) -> str:
     return ", ".join(normalized)
 
 
-# ─── 8. 스킬 컬럼 전체 표준화 ──────────────────────────
+# ─── 9. 스킬 컬럼 전체 표준화 ──────────────────────────
 
 def standardize_skills(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -226,7 +291,7 @@ def standardize_skills(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ─── 9. SQLite 저장 ───────────────────────────────────
+# ─── 10. SQLite 저장 ───────────────────────────────────
 
 def save_to_sqlite(
     df: pd.DataFrame,
@@ -258,7 +323,7 @@ def save_to_sqlite(
         conn.close()
 
 
-# ─── 10. SQLite 조회 테스트 ───────────────────────────
+# ─── 11. SQLite 조회 테스트 ───────────────────────────
 
 def query_sqlite(db_path: str) -> None:
     """
@@ -307,7 +372,7 @@ def query_sqlite(db_path: str) -> None:
         conn.close()
 
 
-# ─── 11. RAG 문서 변환 ────────────────────────────────
+# ─── 12. RAG 문서 변환 ────────────────────────────────
 
 def convert_to_rag_documents(df: pd.DataFrame) -> list:
     """
@@ -318,40 +383,50 @@ def convert_to_rag_documents(df: pd.DataFrame) -> list:
 
     documents = []
 
+    first_saved_date = pd.Timestamp.today().strftime("%Y-%m-%d")
+
     for _, row in df.iterrows():
+        company = safe_str(row.get("company", ""))
+        title = safe_str(row.get("title", ""))
+        required_skills = safe_str(row.get("required_skills", ""))
+        preferred_skills = safe_str(row.get("preferred_skills", ""))
+        description = safe_str(row.get("description", ""))
+        job_type = safe_str(row.get("job_type", ""))
+        deadline = safe_str(row.get("deadline", ""))
+        job_id = safe_str(row.get("id", ""))
+
         doc_text = (
-            f"{row.get('company', '')}에서 "
-            f"{row.get('title', '')}를 채용합니다. "
-            f"필수 스킬은 "
-            f"{row.get('required_skills', '정보 없음')}입니다. "
-            f"우대 스킬: "
-            f"{row.get('preferred_skills', '없음')}. "
-            f"업무 내용: "
-            f"{row.get('description', '정보 없음')}"
+            f"{company}에서 {title}를 채용합니다. "
+            f"직무 유형은 {job_type or '정보 없음'}입니다. "
+            f"필수 스킬은 {required_skills or '정보 없음'}입니다. "
+            f"우대 스킬은 {preferred_skills or '없음'}입니다. "
+            f"업무 내용: {description or '정보 없음'} "
+            f"마감일: {deadline or '정보 없음'}"
         )
 
-        deadline = str(row.get("deadline", ""))
-        company = str(row.get("company", ""))
-
         metadata = {
-            "id": str(row.get("id", "")),
+            "id": job_id,
             "company": company,
-            "title": str(row.get("title", "")),
-            "job_type": str(row.get("job_type", "")),
+            "title": title,
+            "job_type": job_type,
             "deadline": deadline,
             "source": "jobs.csv",
 
-            # 새로 추가한 metadata
-            "deadline_month": deadline[5:7] if len(deadline) >= 7 and deadline[4] == "-" else "",
-            "is_startup": "true" if "스타트업" in company else "false",
-            "first_saved_date": pd.Timestamp.today().strftime("%Y-%m-%d"),
+            # 출처 카드 표시용 metadata
+            "required_skills": required_skills,
+            "preferred_skills": preferred_skills,
+
+            # RAG 필터 / 정렬 확장용 metadata
+            "deadline_month": get_deadline_month(deadline),
+            "is_startup": is_startup_company(company),
+            "first_saved_date": first_saved_date,
         }
 
         documents.append(
             {
                 "text": doc_text,
                 "metadata": metadata,
-                "doc_id": f"job_{row.get('id', '')}",
+                "doc_id": f"job_{job_id}",
             }
         )
 
@@ -360,12 +435,13 @@ def convert_to_rag_documents(df: pd.DataFrame) -> list:
     if documents:
         print("\n   [첫 번째 문서 미리보기]")
         print(f"   ID: {documents[0]['doc_id']}")
-        print(f"   텍스트: {documents[0]['text'][:100]}...")
+        print(f"   텍스트: {documents[0]['text'][:120]}...")
         print(f"   메타데이터: {documents[0]['metadata']}")
 
     return documents
 
-# ─── 12. RAG JSON 저장 ────────────────────────────────
+
+# ─── 13. RAG JSON 저장 ────────────────────────────────
 
 def save_rag_documents(
     documents: list,

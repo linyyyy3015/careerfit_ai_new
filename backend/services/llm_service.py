@@ -2,6 +2,7 @@
 # RAG 연결 + LLM_MODEL 기반 provider 분기 + Ollama 통합 버전
 
 import os
+import re
 import requests
 from dotenv import load_dotenv
 
@@ -48,7 +49,29 @@ PROVIDER, PROVIDER_MODEL = get_provider_and_model(LLM_MODEL)
 
 
 # =========================
-# 3. RAG 프롬프트 생성
+# 3. 시스템 지시문
+# =========================
+
+SYSTEM_INSTRUCTION = """
+당신은 대학생을 위한 취업·공모전 전문 커리어 코치입니다.
+
+반드시 지켜야 할 원칙:
+- 답변은 자연스러운 한국어로 작성합니다.
+- Python, SQL, Verilog, SPICE, TCAD, MATLAB, C/C++ 같은 기술명은 영어 표기를 허용합니다.
+- 그 외 설명 문장은 영어 단어를 과하게 섞지 말고 한국어로 작성합니다.
+- 실제 참고 데이터에 없는 회사명, 공고명, 조건, 공모전 정보는 만들지 않습니다.
+- 공고를 "스킬을 배울 수 있는 기회"처럼 표현하지 않습니다.
+- 공고는 사용자의 현재 역량과 비교할 기준 데이터로만 사용합니다.
+- 입력한 보유 스킬은 이미 갖춘 역량으로 분류합니다.
+- 입력하지 않은 스킬 중 참고 공고의 필수 스킬 또는 우대 스킬에 있는 것만 보완 역량으로 제시합니다.
+- 사용자를 과도하게 평가하지 말고, 현재 입력한 전공과 스킬을 기준으로 실용적인 준비 방향을 제안합니다.
+- 발표 화면에 바로 보여도 어색하지 않게 간결하고 명확하게 작성합니다.
+- 마크다운 문법을 사용하지 않습니다. 별표, 샵, 백틱을 쓰지 않습니다.
+""".strip()
+
+
+# =========================
+# 4. RAG 프롬프트 생성
 # =========================
 
 def build_rag_prompt(query: str, context_docs: list) -> str:
@@ -57,14 +80,16 @@ def build_rag_prompt(query: str, context_docs: list) -> str:
     """
 
     if context_docs:
-        context_text = "\n".join(
+        context_text = "\n\n".join(
             [
                 f"""
-[공고 {i + 1}]
-{doc.get("text", "")}
-
-출처: {doc.get("metadata", {}).get("company", "")} — {doc.get("metadata", {}).get("title", "")}
-필요 역량: {doc.get("metadata", {}).get("required_skills", "")}
+[Source {i + 1}]
+공고명: {doc.get("metadata", {}).get("title", "")}
+회사명: {doc.get("metadata", {}).get("company", "")}
+직무 유형: {doc.get("metadata", {}).get("job_type", "")}
+필수 역량: {doc.get("metadata", {}).get("required_skills", "")}
+우대 역량: {doc.get("metadata", {}).get("preferred_skills", "")}
+공고 내용: {doc.get("text", "")}
 유사도 거리: {doc.get("distance", "")}
 """.strip()
                 for i, doc in enumerate(context_docs)
@@ -72,43 +97,77 @@ def build_rag_prompt(query: str, context_docs: list) -> str:
         )
 
         context_section = f"""
-[참고 데이터 — 실제 취업·공모전 공고]
+[참고 데이터 — RAG 검색 결과]
 {context_text}
 
-위 데이터를 반드시 근거로 사용해 답변하세요.
-답변에서 어떤 공고를 참고했는지 명시하세요.
-검색된 데이터에 없는 회사명, 조건, 공모전 정보는 지어내지 마세요.
+위 참고 데이터는 프로젝트 내부 jobs.csv에서 검색된 공고입니다.
+반드시 위 Source 데이터만 근거로 사용하세요.
+회사명과 공고명은 Source에 있는 이름만 사용하세요.
+검색된 데이터에 없는 회사명, 공고명, 조건, 공모전 정보는 절대 지어내지 마세요.
 """
     else:
         context_section = """
 [참고 데이터 없음]
-제공된 자료만으로는 판단하기 어렵습니다.
-일반적인 커리어 조언만 간단히 제공하세요.
+현재 검색된 공고 데이터가 없습니다.
+제공된 자료만으로는 판단하기 어렵다고 말하고, 일반적인 준비 방향만 짧게 제안하세요.
 """
 
-    return f"""당신은 취업·공모전 전문 커리어 코치입니다.
-다음 지원자 정보와 참고 데이터를 바탕으로 맞춤형 조언을 한국어로 제공하세요.
+    return f"""
+{SYSTEM_INSTRUCTION}
 
-[지원자 정보]
+[사용자 정보]
 {query}
 
 {context_section}
 
 [답변 형식]
-1. 현재 역량 평가 (2문장 이내)
-2. 추천 공고 또는 공모전 (1~2개, 이유 포함)
-3. 부족한 역량 및 준비 방향 (3가지 이내)
+아래 형식을 그대로 지켜서 작성하세요.
+별표, 샵, 백틱 같은 마크다운 문법은 사용하지 마세요.
 
-[중요 규칙]
+1. 현재 역량 평가:
+- 입력된 전공과 보유 스킬이 관심 직무와 어떻게 연결되는지 2문장 이내로 설명하세요.
+- 이미 보유한 스킬은 부족한 역량으로 다시 말하지 마세요.
+- "부족하다"보다는 "보완하면 좋은 부분"처럼 부드럽게 표현하세요.
+
+2. 추천 공고:
+- 참고 데이터가 있으면 Source 1, Source 2 순서에 맞춰 관련 공고 1~2개를 추천하세요.
+- 회사명과 공고명을 정확히 적으세요.
+- 추천 이유는 보유 스킬과 공고 요구 역량이 어떻게 겹치는지 중심으로 설명하세요.
+- 공고를 통해 스킬을 배울 수 있다고 말하지 마세요.
+- 대신 이 공고가 현재 역량과 비교했을 때 어떤 준비가 필요한지 보여주는 기준이라고 설명하세요.
+
+3. 보완하면 좋은 역량:
+- 참고 공고의 필수 역량 또는 우대 역량 중 사용자가 입력하지 않은 항목만 고르세요.
+- 3가지 이내로 작성하세요.
+- 각 항목은 "필요한 이유"와 "준비 방향"을 짧게 제시하세요.
+- 사용자가 이미 입력한 보유 스킬은 절대 다시 제시하지 마세요.
+
+4. 종합 의견:
+- 사용자의 현재 강점과 다음 준비 방향을 2문장 이내로 정리하세요.
+
+[출력 규칙]
 - 반드시 한국어로 답변하세요.
-- 참고 데이터가 있으면 반드시 그 데이터를 근거로 답변하세요.
-- 참고 데이터가 부족하면 "제공된 자료만으로는 판단하기 어렵습니다"라고 말하세요.
-- 간결하고 실용적으로 작성하세요.
+- 단, 기술명은 Python, SQL, Verilog, SPICE, TCAD, MATLAB, C/C++처럼 표기해도 됩니다.
+- acquired, gain, opportunity, additional education, course, internship 같은 영어 단어를 섞지 마세요.
+- "gân", "yetto", "l-course"처럼 깨진 표현을 절대 쓰지 마세요.
+- 마크다운 굵게 표시인 **기호를 사용하지 마세요.
+- 제목이나 항목명에 별표, 샵, 백틱 같은 마크다운 문법을 사용하지 마세요.
+- 입력한 보유 스킬은 부족한 역량으로 다시 제시하지 마세요.
+- 부족한 역량은 참고 공고의 필수 역량 또는 우대 역량 중 입력하지 않은 항목에서만 고르세요.
+- 추천 공고는 참고 출처 순서와 일치하게 작성하세요.
+- 가장 먼저 추천하는 공고는 Source 1에 해당하는 공고로 작성하세요.
+- 공고를 "배울 수 있는 기회"라고 표현하지 마세요.
+- 문장은 짧고 발표 화면에서 읽기 쉽게 작성하세요.
+- 전체 답변은 700자에서 1000자 사이로 작성하세요.
+- "공고를 통해 배울 수 있습니다"라는 표현을 사용하지 마세요.
+- "배울 수 있는 기회"라는 표현을 사용하지 마세요.
+- 사용자가 입력하지 않은 스킬을 보유 스킬이라고 말하지 마세요.
+- 사용자와 겹치는 역량에 명시된 항목만 보유 스킬과 연결된다고 말하세요.
 """.strip()
 
 
 # =========================
-# 4. sources 응답 생성
+# 5. sources 응답 생성
 # =========================
 
 def build_sources(context_docs: list) -> list:
@@ -126,6 +185,7 @@ def build_sources(context_docs: list) -> list:
                 "company": metadata.get("company", ""),
                 "title": metadata.get("title", ""),
                 "required_skills": metadata.get("required_skills", ""),
+                "preferred_skills": metadata.get("preferred_skills", ""),
                 "job_type": metadata.get("job_type", ""),
                 "distance": doc.get("distance", 0),
             }
@@ -135,7 +195,57 @@ def build_sources(context_docs: list) -> list:
 
 
 # =========================
-# 5. Gemini 호출
+# 6. 답변 후처리
+# =========================
+
+def clean_answer(answer: str) -> str:
+    """
+    로컬 LLM이 간혹 섞는 어색한 표현과 마크다운 문법을 발표용으로 보정합니다.
+    """
+
+    if not answer:
+        return "분석 결과가 없습니다."
+
+    replacements = {
+        "**": "",
+        "`": "",
+        "###": "",
+        "##": "",
+        "#": "",
+        "acquired": "습득",
+        "acquire": "습득",
+        "gain": "쌓기",
+        "gaining": "쌓기",
+        "opportunity": "기회",
+        "additional education": "추가 학습",
+        "course": "강의",
+        "internship": "인턴십",
+        "l-course": "강의",
+        "yetto": "",
+        "gân": "관련",
+        "배울 수면": "배우면",
+        "배울 수 있는 기회가 있습니다": "준비가 필요한 항목입니다",
+        "스킬을 배울 수 있습니다": "역량을 보완할 수 있습니다",
+        "공고 또는 공모전": "추천 공고",
+        "추천 공고 또는 공모전": "추천 공고",
+        "공고를 통해": "해당 공고는",
+        "배울 수 있습니다": "보완할 수 있습니다",
+        "배울 수 있는 기회": "보완이 필요한 기준",
+    }
+
+    cleaned = answer
+
+    for old, new in replacements.items():
+        cleaned = cleaned.replace(old, new)
+
+    # 공백 줄이기
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+
+    return cleaned.strip()
+
+
+# =========================
+# 7. Gemini 호출
 # =========================
 
 def call_gemini(prompt: str) -> str:
@@ -158,7 +268,7 @@ def call_gemini(prompt: str) -> str:
 
 
 # =========================
-# 6. Mistral 호출
+# 8. Mistral 호출
 # =========================
 
 def call_mistral(prompt: str) -> str:
@@ -180,10 +290,15 @@ def call_mistral(prompt: str) -> str:
         "model": PROVIDER_MODEL,
         "messages": [
             {
+                "role": "system",
+                "content": SYSTEM_INSTRUCTION,
+            },
+            {
                 "role": "user",
                 "content": prompt,
-            }
+            },
         ],
+        "temperature": 0.2,
     }
 
     response = requests.post(
@@ -201,7 +316,7 @@ def call_mistral(prompt: str) -> str:
 
 
 # =========================
-# 7. Ollama 호출
+# 9. Ollama 호출
 # =========================
 
 def call_ollama(prompt: str) -> str:
@@ -214,7 +329,12 @@ def call_ollama(prompt: str) -> str:
     payload = {
         "model": PROVIDER_MODEL,
         "prompt": prompt,
+        "system": SYSTEM_INSTRUCTION,
         "stream": False,
+        "options": {
+            "temperature": 0.2,
+            "num_predict": 900,
+        },
     }
 
     try:
@@ -244,7 +364,7 @@ def call_ollama(prompt: str) -> str:
 
 
 # =========================
-# 8. HuggingFace 호출
+# 10. HuggingFace 호출
 # =========================
 
 def call_huggingface(prompt: str) -> str:
@@ -265,11 +385,16 @@ def call_huggingface(prompt: str) -> str:
     response = client.chat_completion(
         messages=[
             {
+                "role": "system",
+                "content": SYSTEM_INSTRUCTION,
+            },
+            {
                 "role": "user",
                 "content": prompt,
-            }
+            },
         ],
-        max_tokens=700,
+        max_tokens=900,
+        temperature=0.2,
     )
 
     message = response.choices[0].message
@@ -281,7 +406,7 @@ def call_huggingface(prompt: str) -> str:
 
 
 # =========================
-# 9. provider에 따라 실제 LLM 호출
+# 11. provider에 따라 실제 LLM 호출
 # =========================
 
 def call_llm(prompt: str) -> str:
@@ -305,7 +430,7 @@ def call_llm(prompt: str) -> str:
 
 
 # =========================
-# 10. FastAPI 라우터에서 사용할 최종 함수
+# 12. FastAPI 라우터에서 사용할 최종 함수
 # =========================
 
 def get_llm_response(query: str, context_docs: list) -> dict:
@@ -329,6 +454,7 @@ def get_llm_response(query: str, context_docs: list) -> dict:
         prompt = build_rag_prompt(query, context_docs)
 
         answer = call_llm(prompt)
+        answer = clean_answer(answer)
 
         return {
             "answer": answer,
