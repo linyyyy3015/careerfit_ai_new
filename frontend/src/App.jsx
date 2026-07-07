@@ -2,9 +2,10 @@ import { useState } from "react";
 import InputForm from "./components/InputForm";
 import ResultCard from "./components/ResultCard";
 import SourceCard from "./components/SourceCard";
+import { apiUrl } from "./lib/api";
 
-const API_BASE = "http://localhost:8000";
 // API Key는 절대 React 코드에 넣지 않습니다.
+// 백엔드 주소는 frontend/.env.local 또는 Render 환경변수의 VITE_API_BASE_URL로 관리합니다.
 
 function App() {
   const [result, setResult] = useState(null);
@@ -17,7 +18,7 @@ function App() {
     setResult(null);
 
     try {
-      const response = await fetch(`${API_BASE}/analyze`, {
+      const response = await fetch(apiUrl("/analyze"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
